@@ -194,7 +194,7 @@ int evenBits(void) {
  *  Rating: 2
  */
 int byteSwap(int x, int n, int m) {
-    //Using shift to bits
+    //Using logical shift to swap bits
     int y = 0;
     n = n << 3; // n == n*3
     m = m << 3; //m == n*3
@@ -214,7 +214,7 @@ int byteSwap(int x, int n, int m) {
  *   Rating: 3
  */
 int bitMask(int highbit, int lowbit) {
-    //Using shift to generate a mask
+    //Using logical shift to generate a mask
     return ((2 << highbit) + ~0) >> lowbit << lowbit;
 }
 /* 
