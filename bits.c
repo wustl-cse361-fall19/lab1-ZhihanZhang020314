@@ -166,8 +166,8 @@ NOTES:
  *   Rating: 1
  */
 int bitXor(int x, int y) {
-    // x^y = (~x & y) | (x & ~y)
-    // a | b = ~ ~(a | b) = ~ (~a & ~b)
+    //x^y = (~x & y) | (x & ~y)
+    //a | b = ~ ~(a | b) = ~ (~a & ~b)
     return ~(~x & ~y) & ~(x & y);
 }
 /* 
@@ -177,12 +177,12 @@ int bitXor(int x, int y) {
  *   Rating: 1
  */
 int evenBits(void) {
-    // Set starting point of 01010101 so that all even numbered bits are 1
-    // Then shifts over by 8, to obtain 0101010100000000 and uses OR operator to obtain
-    // 0101010101010101, then repeats the process with 16.
+    //Set starting point 01010101 so that all even numbered bits are 1.
+    //Then shifts over by 8, to obtain 0101010100000000 and uses OR operator to obtain.
+    //0101010101010101, then repeats the process with 16.
     int word = 0x55; //85
-    word = word | word<<8;
-    return word | word<<16;
+    word = word | word <<8;
+    return word | word <<16;
 }
 /* 
  * byteSwap - swaps the nth byte and the mth byte
@@ -194,13 +194,13 @@ int evenBits(void) {
  *  Rating: 2
  */
 int byteSwap(int x, int n, int m) {
-    //
+    //Using shift to bits
     int y = 0;
-    n = n<<3; // n == n*3
-    m = m<<3; //m == n*3
-    y = 0xff & ((x>>n) ^ (x>>m)); // 1111 1111
-    x = x ^ (y<<n); 
-    x = x ^ (y<<m);
+    n = n << 3; // n == n*3
+    m = m << 3; //m == n*3
+    y = 0xff & ((x >> n) ^ (x >> m)); // 1111 1111
+    x = x ^ (y << n); 
+    x = x ^ (y << m);
     return x;
 }
 /* 
@@ -214,7 +214,7 @@ int byteSwap(int x, int n, int m) {
  *   Rating: 3
  */
 int bitMask(int highbit, int lowbit) {
-    //
+    //Using shift to generate a mask
     return ((2 << highbit) + ~0) >> lowbit << lowbit;
 }
 /* 
@@ -226,7 +226,7 @@ int bitMask(int highbit, int lowbit) {
  *   Rating: 3 
  */
 int logicalShift(int x, int n) {
-    //
+    //Using XOR to clear any bits, the left of the result should always be 0 other than sign.
     return (x >> n) & (~(((1 << 31) >> n) << 1));
 }
 // #include "rotateRight.c" /*3 = 13*/
@@ -238,18 +238,18 @@ int logicalShift(int x, int n) {
  *   Rating: 4
  */
 int bitCount(int x) {
-    //
+    //Main point is logical shift
     int mask=0x11 | (0x11 << 8),s;
   	mask= mask | (mask << 16);
 
-	  s = x & mask;
-  	s += (x>>1)&mask;
-  	s += (x>>2)&mask;
-	  s += (x>>3)&mask;
-	  s += s>>16;
+	s = x & mask;
+  	s += (x >> 1) & mask;
+  	s += (x >> 2) & mask;
+	s += (x >> 3) & mask;
+	s += s >> 16;
   	mask = 0x0f | (0x0f << 8);
-	  s = (s & mask)+((s>>4) & mask);
-	  return (s+(s>>8))& 0x3f;
+	s = (s & mask) + ((s >> 4) & mask);
+	return (s + (s >> 8)) & 0x3f;
 }
 /* 
  * fitsBits - return 1 if x can be represented as an 
@@ -261,8 +261,9 @@ int bitCount(int x) {
  *   Rating: 2
  */
 int fitsBits(int x, int n) {
-    //
+    //move 32-n by left
     int shift = 33 + ~n;
+    //two values will be equal if n bits is enough to cover x.
     return !(x ^ ((x << shift) >> shift));
 }
 /* 
@@ -274,8 +275,9 @@ int fitsBits(int x, int n) {
  *   Rating: 3
  */
 int addOK(int x, int y) {
-    //
-    return (((x^y)|(~((x+y)^x)))>>31)&1;;
+    //Using XOR all bits of bitwise complement of x+y and x
+    //Right shift 31 bits and AND with 1
+    return (((x ^ y)|(~((x + y) ^ x))) >> 31) & 1;;
 }
 /*
  * satMul3 - multiplies by 3, saturating to Tmin or Tmax if overflow
@@ -317,7 +319,7 @@ int satMul3(int x) {
  *   Rating: 4
  */
 int isPower2(int x) {
-    //If a positive integer is power of 2, the leading bit should be 0, such that (x-1)&x == 0
+    //If a positive integer is power of 2, the leading bit should be 0, such that (x-1) & x == 0
     int sign = !(x >> 31);
     return (!!x) & sign & !((x + ~1 + 1) & x);
 }
@@ -333,9 +335,9 @@ int isPower2(int x) {
  *   Rating: 4
  */
 int trueThreeFourths(int x) {
-    // Multiply by 3/4 equal to multiply by 1/2 plus multiply by 1/4
-    // For negative number, +1 if it is divisible by 3 in order to round toward 0
-    // Calculate integer part and fraction part separately
+    //Multiply by 3/4 equal to multiply by 1/2 plus multiply by 1/4
+    //For negative number, +1 if it is divisible by 3 in order to round toward 0
+    //Calculate integer part and fraction part separately
     int n = 1 << 31;
     int msb = x & n;
     int msb_mask = msb >> 31;
@@ -355,6 +357,8 @@ int trueThreeFourths(int x) {
  *   Rating: 4
  */
 unsigned float_i2f(int x) {
+    //toAdd may lead to a carry, if this happens, we need to frac >>= 1; exp += 1;
+    //However, since we suppress the leading 1 of frac, the carry can be automatically added to exp.
     unsigned s = 0, exp = 31, frac = 0, toAdd = 0;
     if (x == 0x00000000u) return 0x00000000u;
     if (x & 0x80000000u) { s = 0x80000000u; x = -x; }
@@ -364,10 +368,8 @@ unsigned float_i2f(int x) {
       x <<= 1;
     }
     if ((x & 0x000001ff) == 0x180) toAdd = 1;
-    else if ((x & 0xff) > 0x80) toAdd = 1;
-    //toAdd may lead to a carry, if this happens, we need to frac >>= 1; exp += 1;
-    //However, since we supress the leading 1 of frac, the carry can be automatically added to exp.
-    frac = ((x & 0x7fffffffu) >> 8) + toAdd;
+        else if ((x & 0xff) > 0x80) toAdd = 1;
+        frac = ((x & 0x7fffffffu) >> 8) + toAdd;
   
     return s + ((exp + 127) << 23) + frac;
 }
@@ -383,15 +385,15 @@ unsigned float_i2f(int x) {
  *   Rating: 4
  */
 unsigned float_twice(unsigned uf) {
-    //Divide into /infinity, Denormalized, Normailized
-    //uf = +-0 case.
+    //Divide into infinity/Denormalized/Normailized
+    //uf = +-0 case
 	if(uf == 0 || uf == 0x80000000) return uf;
-	//NaN case.
+	//Infinity case.
 	if(((uf >> 23) & 0xff) == 0xff) return uf;
-	//Tiny value, but non-zero case.
+	//Tiny value, but noy equal ot zero
 	if(((uf >> 23) & 0xff) == 0x00) {
 		return (uf & (1 << 31)) | (uf << 1);
 	}
-	//Otherwise, Add 1 to exp value.
+	//Otherwise, Add 1 to exp value
 	return uf + (1 << 23);
 }
